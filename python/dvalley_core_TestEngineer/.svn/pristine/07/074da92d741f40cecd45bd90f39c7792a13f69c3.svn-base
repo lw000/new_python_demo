@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import tester_config
+from api_net_base import BaseNetApi 
+        
+class WebBaseApi(object):
+    def __init__(self, debug = 1):
+        self.__host = tester_config.host(tester_config.API_WEB, debug)
+        self.__net = BaseNetApi(self.__host, tester_config.API_WEB)
+        
+    def post(self, method, usetoken, params):
+        return self.__net.post(method, usetoken, params)
+        
+    def batchPost(self, method, usetoken, params, count):     
+        return self.__net.batchPost(method, usetoken, params, count)
+     
+    def asyncPost(self, method, usetoken, params):
+        return self.__net.asyncPost(method, usetoken, params)
+    
+    def get(self, url, params):   
+        return self.__net.get(url, params)
+    

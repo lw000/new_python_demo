@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package route_database;
+
+message Point {
+	int32 latitude = 1;
+	int32 longitude = 2;
+}
+
+message Feature {
+	Point location = 1;
+	string name = 2;
+}
+
+message PointRequest {
+	string name = 1;
+}
+
+message PointReply {
+	string message = 1;
+}
+
+message FeatureRequest {
+	Point location = 1;
+}
+
+message FeatureReply {
+	Feature feature = 1;
+}
+
+service RouteGreeter {
+	rpc GetFeature(FeatureRequest) returns (FeatureReply) {}
+	rpc ListFeatures(PointRequest) returns (PointReply) {}
+	rpc RecordRoute(PointRequest) returns (PointReply) {}
+	rpc RouteChat(PointRequest) returns (PointReply) {}
+}

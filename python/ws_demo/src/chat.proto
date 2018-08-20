@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package chat;
+
+message Person {
+  	int32 age = 1;
+  	string name = 2;
+}
+
+message Family {
+  	repeated Person person = 1;
+}
+
+message Value {
+	int32 a = 1;
+	int32 b = 2;
+}
+
+message Result {
+	int32 c = 1;
+}
+
+message ChatRequest {
+	int32		from_uid	= 1;  // from_uid
+	int32		to_uid		= 2;  // to_uid
+	string		msg			= 3;  // msg
+}
+
+message ChatReply {
+	int32		from_uid	= 1;  // from_uid
+	int32		to_uid		= 2;  // to_uid
+	string		msg			= 3;  // msg
+}

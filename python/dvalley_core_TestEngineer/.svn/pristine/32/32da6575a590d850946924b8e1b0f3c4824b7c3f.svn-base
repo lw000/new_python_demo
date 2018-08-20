@@ -1,0 +1,261 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import sys
+import demjson
+import requests
+import logging
+import dvtool
+
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+         
+class BaseApi(object):
+    def __init__(self, debug = 0):
+        if debug == 0:
+            self._server_url = 'http://api.klgwl.com'
+        else:
+            self._server_url = 'http://120.78.182.253:8181'
+    
+    def _send_post(self, method, token, params):
+        url = self._server_url + method
+        
+        common_params = dict(app_version='3.0.1', client_type='pc', lang='1')
+       
+        post_params = {}
+        post_params.update(common_params)
+        
+        if (token != None):
+            post_params['token'] = token
+            
+        if (params != None):
+            post_params.update(params)
+            
+        post_data = dvtool.webSignWithJson(demjson.encode(post_params))
+        
+    #     log.debug(post_data)
+        
+        payload = demjson.decode(post_data)
+        
+        r = requests.post(url, data=payload) 
+        print(r.url)
+    #     print(r.text)
+        
+        return r
+    
+    def _send_get(self, url, params):   
+        r = requests.get(url, params)  
+        print(r.url)
+        print(r.text)
+        
+        return r
+      
+class TestApi(BaseApi):
+     
+    def __init__(self, debug = 0):
+        super(TestApi, self).__init__(debug=debug)
+                
+    def init(self):
+        return self.__post_user_login('/user/login')
+    
+    def start(self):
+        self.__post_user_resetPassword(method='/user/resetPassword')
+        self.__post_user_info(method='/user/info')
+        self.__post_user_baseinfo(method='/user/info')
+        
+        self.__post_area_getProvinces(method='/area/getProvinces')
+        self.__post_area_getCities(method='/area/getCities')
+        self.__post_area_getCityCode(method='/area/getCityCode')
+        
+        self.__post_discuss_getTags(method='/discuss/getTags')
+        self.__post_discuss_list(method='/discuss/list')
+        self.__post_discuss_detail(method='/discuss/detail')
+        
+        self.__post_social_getTags(method='/social/getTags')
+        
+        self.__post_setting_list(method='/setting/list')
+        
+    def stop(self):
+        pass
+    
+    def __post_user_login(self, method):
+        params = {'phone':'13632767233', 'pwd':dvtool.webRsaEncrypt('lwstar23133')}
+        
+        r = self._send_post(method=method, token=None, params=params)
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                self.__login_result = result['data']
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+                return True
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+            
+        return False
+    
+    def __post_user_resetPassword(self, method):
+        params = dict(uid=50037, old_pwd=dvtool.webRsaEncrypt('lwstar23133'), pwd=dvtool.webRsaEncrypt('lwstar23133'))
+        
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=params)
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+    
+    #获取用户信息
+    def __post_user_info(self, method): 
+        params = dict(uid=50037, to_uid=50037)
+        
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=params)
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+            
+    #获取用户基本信息
+    def __post_user_baseinfo(self, method):
+        params = dict(uid=50037, to_uid=50037)
+        
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=params) 
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+            
+    def __post_setting_list(self, method):
+        params = dict(uid=50037, development=0, name='liwei')
+        
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=params) 
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+            
+            
+    def __post_area_getProvinces(self, method):
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=None)   
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+    
+    
+    def __post_area_getCities(self, method):
+        params = dict(province_id=6)
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=params)
+        
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+            
+    def __post_area_getCityCode(self, method):
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=None)  
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+                 
+     
+    def __post_discuss_getTags(self, method):
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=None)  
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+            
+    
+    def __post_discuss_list(self, method):
+        params = dict(uid=50037, type=0, area_code=0, v_id=0, page=1, limit=20, first_id=0, last_id=0)
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=params)
+        
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+               
+               
+    def __post_discuss_detail(self, method):
+        params = dict(uid=50037, discuss_id=48585)
+        
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=params)  
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+            
+        
+    def __post_social_getTags(self, method):
+        params = dict(uid=50037)
+        
+        r = self._send_post(method=method, token=self.__login_result['token_info']['token'], params=params)
+        if(r.status_code == 200):
+            result = demjson.decode(r.text)
+            if result['result'] == 1:
+                print('result:' + str(result['result']))
+                print('data:' + str(result['data']))
+            else:
+                print('result:' + str(result))
+        else:
+            log.debug(r)
+            
+################################################################################

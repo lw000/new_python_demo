@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import logging
+from base_api import BaseApi
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s %(filename)s[line:%(lineno)d]',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+log = logging.getLogger(__name__)
+      
+class SocialApi(BaseApi):
+    def __init__(self, debug = 0):
+        super(SocialApi, self).__init__(debug=debug)
+            
+    def start(self):
+        self.__post_social_getTags(method='/social/getTags')
+                
+    def stop(self):
+        pass
+    
+    def __post_social_getTags(self, method):
+        params = dict(uid=self.login_result_data['uid'])
+        
+        code, result = self._post(method=method, token=self.login_result_data['token_info']['token'], params=params)
+        if code == 200:
+            if result['result'] == 1:
+                log.debug('data:' + str(result['data']))
+            elif result['result'] == 0:
+                log.debug('error:' + str(result['error']))
+            else:
+                logging.error(result)
+        else:
+            logging.error(code, result)
+            

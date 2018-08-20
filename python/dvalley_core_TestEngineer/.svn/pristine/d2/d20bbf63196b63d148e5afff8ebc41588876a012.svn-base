@@ -1,0 +1,213 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import demjson
+import logging
+import requests
+import grequests
+import time
+import datetime
+import utils
+     
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s [pid:%(process)s] %(levelname)s %(message)s %(filename)s[line:%(lineno)d]',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+   
+logger = logging.getLogger(__name__)
+
+# logger.setLevel(logging.DEBUG)
+# 
+# hdr = logging.StreamHandler()
+# formatter = logging.Formatter('%(asctime)s [pid:%(process)s] %(levelname)s %(message)s %(filename)s[line:%(lineno)d]')
+# hdr.setFormatter(formatter)
+# 
+# logger.addHandler(hdr)
+
+def __execpt_handler(req, exception):
+    print('Request failed')
+   
+API_WEB = 1
+API_REDBAG = 2
+
+login_result_data = {}
+
+def purl(args):
+    def _url(func):
+        def __url(self, method, usetoken, params):
+            date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')     
+            t1 = time.time()
+            data = func(self, method, usetoken, params)
+            t2 = time.time()         
+            print('%s %s%s [%f] %s' % (date, self.server_url, method, t2-t1, params))
+            return data
+        return __url
+    return _url
+    
+class BaseApi(object):
+    def __init__(self, buniss=API_WEB, debug = 0):
+        self._debug = debug
+        self._buniss = buniss
+        
+        if self._debug == 0:
+            if self._buniss == API_WEB:
+                self.server_url = 'http://api.klgwl.com'
+            elif self._buniss == API_REDBAG:
+                self.server_url = 'http://service.klgwl.com'
+            else:
+                pass
+        else:
+            if self._buniss == API_WEB:
+                self.server_url = 'http://120.78.182.253:8181'
+            elif self._buniss == API_REDBAG:
+                self.server_url = 'http://120.78.182.253:8181'
+            else:
+                pass
+                      
+    def __prepareParams(self, usetoken, params):
+        commonParams = dict(app_version='3.0.1', client_type='pc', lang='1')
+        postParams = {}
+        postParams.update(commonParams)
+               
+        if params != None:
+            postParams.update(params)
+            
+        if usetoken:
+            postParams['token'] = login_result_data['token_info']['token']
+        
+        if self._buniss == API_WEB:
+            postData = utils.webSignWithJson(demjson.encode(postParams))
+        elif self._buniss == API_REDBAG:
+            postData = utils.redbagSignWithJson(demjson.encode(postParams))
+        else:
+            pass
+        
+        if postData:
+            payload = demjson.decode(postData)
+            return payload
+        
+        return None
+    
+    @purl('_post')
+    def _post(self, method, usetoken, params):
+        url = self.server_url + method
+        payload = self.__prepareParams(usetoken, params)
+        if not payload:
+            return -1, {'error':'fail sign'}
+        
+        r = requests.post(url, data=payload)
+            
+#         logger.debug(r.headers)
+#         logger.debug(r.text)
+#         logger.debug(r.json())
+            
+        if r.status_code == 200:
+            result = demjson.decode(r.text)
+            
+#             if result['result'] == 1:
+#                 logger.debug(result['data'])
+#             elif result['result'] == 0:
+#                 logger.debug(result['error'])
+#             else:
+#                 logger.error(result)
+                    
+            return result['result'], result['data']
+        else:
+            return r.status_code, {'error':r.text}
+        
+    def _batchPost(self, method, token, params, count):     
+        rs = []
+        for _ in range(count):
+            code, data = self._post(method, token, params)
+            rs.append((code, data))        
+        return rs
+     
+    @purl('_asyncPost')
+    def _asyncPost(self, method, token, params):
+        url = self.server_url + method    
+        payload = self.__prepareParams(token, params)
+        
+        urls = [url]
+        r = (grequests.post(url, data=payload) for u in urls)
+        data = grequests.map(r)
+                
+        for v in data:
+            print(v)
+            print(v.url)
+            print(v.headers)
+            print(v.text)
+            print(v.json())
+                     
+        return data
+    
+    def _get(self, url, params):   
+        r = requests.get(url, params)
+        print(r.url)
+        print(r.text)
+        
+        return r
+    
+#     def updateLoginResultData(self, data):
+#         self.login_result_data = data
+        
+    @property
+    def account(self):
+        return self.__account
+    
+    @account.setter
+    def account(self, account):
+        self.__account = account
+        
+    @property
+    def pwd(self):
+        return self.__pwd
+     
+    @pwd.setter
+    def pwd(self, pwd):
+        self.__pwd = pwd
+        
+    def login(self):
+        ok = self.__post_user_login('/user/login')
+        if ok:
+            self.__post_app_setting('/app/setting')
+            self.__post_upload_getToken('/upload/getToken')
+            
+        return ok
+    
+    def __post_user_login(self, method):
+        params = {'phone':self.__account, 'pwd':utils.webRsaEncrypt(self.__pwd)}
+        code, result = self._post(method=method, usetoken=False, params=params)
+        if(code == 1):
+            global login_result_data
+            login_result_data = result
+        
+#             for _, v in enumerate(self.__api_module):
+#                 v.updateLoginResultData(self.login_result_data)
+                                
+            print(login_result_data)
+            
+            return True
+        else:
+            print('[%d %s]' % (code, result))
+            
+        return False
+    
+    def __post_upload_getToken(self, method):
+        params = {'uid':login_result_data['uid']}
+        code, result = self._post(method=method, usetoken=True, params=params)
+        if code == 1:
+            print(result)
+        else:
+            print('[%d %s]' % (code, result))
+            
+    def __post_app_setting(self, method):
+        params = {'uid':login_result_data['uid']}
+        code, result = self._post(method=method, usetoken=True, params=params)
+        if code == 1:
+            print(result)
+        else:
+            print('[%d %s]' % (code, result))

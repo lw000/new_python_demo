@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+encoding//src/api/api.py=utf-8
+encoding//src/api/api_area.py=utf-8
+encoding//src/api/api_base.py=utf-8
+encoding//src/api/api_contact.py=utf-8
+encoding//src/api/api_discuss.py=utf-8
+encoding//src/api/api_setting.py=utf-8
+encoding//src/api/api_social.py=utf-8
+encoding//src/api/api_user.py=utf-8
+encoding//src/api/api_wallet.py=utf-8
+encoding//src/api/configMgr.py=utf-8
+encoding//src/api/utils.py=utf-8
+encoding//src/main.py=utf-8

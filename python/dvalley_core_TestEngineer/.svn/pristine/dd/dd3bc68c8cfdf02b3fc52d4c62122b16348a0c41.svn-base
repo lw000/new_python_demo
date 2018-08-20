@@ -1,0 +1,79 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import tester_config
+import utils
+from api_web_base import WebBaseApi
+      
+class LoginApi(WebBaseApi):
+    def __init__(self, debug = 1):
+        super(LoginApi, self).__init__(debug=debug)
+                          
+    @property
+    def account(self):
+        return self.__account
+    
+    @account.setter
+    def account(self, account):
+        self.__account = account
+        
+    @property
+    def pwd(self):
+        return self.__pwd
+     
+    @pwd.setter
+    def pwd(self, pwd):
+        self.__pwd = pwd
+        
+    def login(self, account, pwd):
+        self.__account = account
+        self.__pwd = pwd
+        
+        ok = self.__post_user_login('/user/login')
+        if ok:
+            self.__post_app_setting('/app/setting')
+            self.__post_upload_getToken('/upload/getToken')
+            
+        return ok
+    
+    def __post_user_login(self, method):
+        params = {'phone':self.__account, 'pwd':utils.webRsaEncrypt(self.__pwd)}
+        code, result = self.post(method=method, usetoken=False, params=params)
+        if code == 1 or code == 0:
+            tester_config.login_result_data = result
+            print(tester_config.login_result_data)
+            return True
+        else:
+            print('[code: %d result:%s]' % (code, result))
+            
+        return False
+    
+    def __post_upload_getToken(self, method):
+        params = {'uid':tester_config.login_result_data['uid']}
+        code, result = self.post(method=method, usetoken=True, params=params)
+        if (code == 1) or (code == 0):
+            print(result)
+        else:
+            print('[code: %d result:%s]' % (code, result))
+            
+    def __post_app_setting(self, method):
+        params = {'uid':tester_config.login_result_data['uid']}
+        code, result = self.post(method=method, usetoken=True, params=params)
+        if (code == 1) or (code == 0):
+            print(result)
+        else:
+            print('[code: %d result:%s]' % (code, result))
+            
+            
+if __name__ == '__main__':
+    login = LoginApi(debug=1)
+    login.account = tester_config.account
+    login.pwd = tester_config.pwd
+    if login.login(tester_config.account, tester_config.pwd):
+        pass

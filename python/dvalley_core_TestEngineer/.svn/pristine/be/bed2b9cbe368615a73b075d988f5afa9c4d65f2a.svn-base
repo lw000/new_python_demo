@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2017年12月26日
+
+@author: Administrator
+'''
+
+import sys
+import cProfile
+import time
+import threading
+
+sys.path.append(r"./api")
+import api
+       
+class TestWorker(threading.Thread):
+    def __init__(self, name):
+        super(TestWorker, self).__init__(name=name)
+        self.tester = api.TesterApi(debug=0, account='13632767233', pwd='lwstar23133')
+        self.tester.account = '13632767233'
+        self.tester.pwd = 'lwstar23133'
+        
+    def run(self):
+        threading.Thread.run(self)
+      
+        if self.tester.login():
+            while True:    
+                self.tester.start()
+                break
+        
+        self.tester.stop()
+      
+def main():
+    worker = TestWorker('worker')
+    worker.start()
+    worker.join()
+              
+if __name__ == '__main__':    
+#     dvalley_core_python_ext.startLogger()
+    main()
+#     cProfile.run("main()")
+#     dvalley_core_python_ext.stopLogger()

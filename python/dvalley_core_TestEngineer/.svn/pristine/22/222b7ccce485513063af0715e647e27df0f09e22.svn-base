@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import ctypes
+import sys
+import demjson
+
+PLATFORM = 'x64'
+
+if PLATFORM == 'x64':
+    sys.path.append(r'./x64')
+else:
+    sys.path.append(r'./x86')
+
+sys.path.append(r'dvalley_core_python_ext.pyd')
+
+# if PLATFORM == 'x64':
+#     sys.path.append(r'./x64/dvalley_core_python_ext.pyd')
+# else:
+#     sys.path.append(r'./x86/dvalley_core_python_ext.pyd')
+
+import dvalley_core_python_ext
+
+def webRsaEncrypt(s):
+    return dvalley_core_python_ext.rsaEncrypt(10000, s)
+
+def webSignWithJson(s, slat = ''):
+    return dvalley_core_python_ext.signWithJson(10000, s, slat)
+
+def webSignWithString(s, slat = ''):
+    return dvalley_core_python_ext.signWithString(10000, s, slat)
+
+def redbagRsaEncrypt(s):
+    return dvalley_core_python_ext.rsaEncrypt(10001, s)
+
+def redbagSignWithJson(s, slat = ''):
+    return dvalley_core_python_ext.signWithJson(10001, s, slat)
+
+def redbagSignWithString(s, slat = ''):
+    return dvalley_core_python_ext.signWithString(10001, s, slat)
+
+def thirdPartRsaEncrypt(s):
+    return dvalley_core_python_ext.rsaEncrypt(10002, s)
+
+def thirdPartSignWithJson(s, slat = ''):
+    return dvalley_core_python_ext.signWithJson(10002, s, slat)
+
+def thirdPartSignWithString(s, slat = ''):
+    return dvalley_core_python_ext.signWithString(10002, s, slat)
+
+if __name__ == '__main__':
+    print(webRsaEncrypt('1111111111'))
+    pload = {'a':'1111111111'}
+    print(webSignWithJson(demjson.encode(pload)))
+    print(webSignWithString('1111111111'))
+    
+    print(redbagRsaEncrypt('1111111111'))
+    pload = {'a':'1111111111'}
+    print(redbagSignWithJson(demjson.encode(pload)))
+    print(redbagSignWithString('1111111111'))
+       
+    print(thirdPartRsaEncrypt('1111111111'))
+    pload = {'a':'1111111111'}
+    print(thirdPartSignWithJson(demjson.encode(pload)))
+    print(thirdPartSignWithString('1111111111'))

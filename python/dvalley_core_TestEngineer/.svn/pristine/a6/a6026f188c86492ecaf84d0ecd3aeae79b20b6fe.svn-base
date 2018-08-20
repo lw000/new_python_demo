@@ -1,0 +1,113 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import utils
+# import logging
+import api_base
+from api_base import BaseApi
+from api_user import UserApi
+from api_discuss import DiscussApi
+from api_setting import SettingApi
+from api_area import AreaApi
+from api_social import SocialApi
+from api_wallet import WalletApi
+from api_contact import ContactApi
+          
+# logger = logging.getLogger(__name__)
+# 
+# # 设置logger的level为DEBUG
+# logger.setLevel(logging.DEBUG)
+# 
+# # 创建一个输出日志到控制台的StreamHandler
+# hdr = logging.StreamHandler()
+# formatter = logging.Formatter('%(asctime)s [pid:%(process)s] %(levelname)s %(message)s %(filename)s[line:%(lineno)d]')
+# hdr.setFormatter(formatter)
+# 
+# # 给logger添加上handler
+# logger.addHandler(hdr)
+
+class TesterApi(BaseApi):
+#     def __init__(self, debug=0, account=None, pwd=None):
+    def __init__(self, debug=0):
+        super(TesterApi, self).__init__(debug=debug)
+        self.__api_module = []
+        self.__registerApiTesterModule()
+        
+#     def login(self):
+#         ok = self.__post_user_login('/user/login')
+#         return ok
+    
+    def start(self):
+        self.__post_app_setting('/app/setting')
+        self.__post_upload_getToken('/upload/getToken')
+        
+        for _, v in enumerate(self.__api_module):
+            v.start()
+                        
+    def stop(self):
+        for _, v in enumerate(self.__api_module):
+            v.stop()
+    
+#     @property
+#     def account(self):
+#         return self.__account
+#     
+#     @account.setter
+#     def account(self, account):
+#         self.__account = account
+#         
+#     @property
+#     def pwd(self):
+#         return self.__pwd
+#      
+#     @pwd.setter
+#     def pwd(self, pwd):
+#         self.__pwd = pwd    
+        
+    def __registerApiTesterModule(self): 
+        self.__api_module.append(UserApi(self._debug))
+        self.__api_module.append(DiscussApi(self._debug))
+        self.__api_module.append(SettingApi(self._debug))
+        self.__api_module.append(AreaApi(self._debug))
+        self.__api_module.append(SocialApi(self._debug))
+        self.__api_module.append(WalletApi(self._debug))
+        self.__api_module.append(ContactApi(self._debug))
+            
+#     def __post_user_login(self, method):
+#         params = {'phone':self.__account, 'pwd':utils.webRsaEncrypt(self.__pwd)}
+#         code, result = self._post(method=method, usetoken=False, params=params)
+#         if(code == 1):
+#             self.login_result_data = result
+#             for _, v in enumerate(self.__api_module):
+#                 v.updateLoginResultData(self.login_result_data)
+#                                 
+#             print(self.login_result_data)
+#             
+#             return True
+#         else:
+#             print('[%d %s]' % (code, result))
+#             
+#         return False
+    
+    def __post_upload_getToken(self, method):
+        params = {'uid':api_base.login_result_data['uid']}
+        code, result = self._post(method=method, usetoken=True, params=params)
+        if code == 1:
+            print(result)
+        else:
+            print('[%d %s]' % (code, result))
+            
+    def __post_app_setting(self, method):
+        params = {'uid':api_base.login_result_data['uid']}
+        code, result = self._post(method=method, usetoken=True, params=params)
+        if code == 1:
+            print(result)
+        else:
+            print('[%d %s]' % (code, result))
+                                    

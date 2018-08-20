@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import demjson
+import requests
+import logging
+import dvcore
+     
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+    
+class BaseApi(object):
+       
+    def __init__(self, debug = 0):
+        self._debug = debug
+        
+        if self._debug == 0:
+            self.server_url = 'http://api.klgwl.com'
+        else:
+            self.server_url = 'http://120.78.182.253:8181'
+    
+    def cacheLoginResultData(self, data):
+        self.login_result_data = data
+        
+    def _send_post(self, method, token, params):
+        url = self.server_url + method
+        
+        commonParams = dict(app_version='3.0.1', client_type='pc', lang='1')
+        postParams = {}
+        postParams.update(commonParams)
+        if (token != None):
+            postParams['token'] = token
+            
+        if (params != None):
+            postParams.update(params)
+            
+        postData = dvcore.webSignWithJson(demjson.encode(postParams))
+        
+        log.debug(postData)
+        
+        payload = demjson.decode(postData)
+            
+        r = requests.post(url, data=payload) 
+        print(r.url)
+    #     print(r.text)
+        
+        return r
+    
+    def _send_get(self, url, params):   
+        r = requests.get(url, params)  
+        print(r.url)
+        print(r.text)
+        
+        return r

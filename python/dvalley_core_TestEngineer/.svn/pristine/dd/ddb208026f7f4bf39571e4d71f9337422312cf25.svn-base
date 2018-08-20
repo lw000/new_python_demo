@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import logging
+from api_base import BaseApi
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s %(filename)s[line:%(lineno)d]',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+log = logging.getLogger(__name__)
+      
+class DiscussApi(BaseApi):
+    def __init__(self, debug = 0):
+        super(DiscussApi, self).__init__(debug=debug)
+                
+    def start(self):
+        self.__post_discuss_getTags(method='/discuss/getTags')
+        self.__post_discuss_list(method='/discuss/list')
+        self.__post_discuss_detail(method='/discuss/detail')
+        self.__post_discuss_myDiscuss(method='/discuss/myDiscuss')
+                
+    def stop(self):
+        pass
+     
+    def __post_discuss_getTags(self, method):
+        params = {'uid':self.login_result_data['uid']}
+        code, result = self._post(method=method, token=self.login_result_data['token_info']['token'], params=params)  
+        if code == 200:
+            if result['result'] == 1:
+                log.debug(result['data'])
+            elif result['result'] == 0:
+                log.debug(result['error'])
+            else:
+                log.error(result)
+        else:
+            log.debug(code, result)
+    
+    def __post_discuss_list(self, method):
+        params = dict(uid=self.login_result_data['uid'], type=0, area_code=0, v_id=0, page=1, limit=20, first_id=0, last_id=0)
+        code, result = self._post(method=method, token=self.login_result_data['token_info']['token'], params=params)
+        
+        if code == 200:
+            if result['result'] == 1:
+                log.debug(result['data'])
+            elif result['result'] == 0:
+                log.debug(result['error'])
+            else:
+                log.error(result)
+        else:
+            log.debug(code, result)
+                            
+    def __post_discuss_detail(self, method):
+        params = dict(uid=self.login_result_data['uid'], discuss_id=48585)
+        
+        code, result = self._post(method=method, token=self.login_result_data['token_info']['token'], params=params)  
+        if code == 200:
+            if result['result'] == 1:
+                log.debug(result['data'])
+            elif result['result'] == 0:
+                log.debug(result['error'])
+            else:
+                log.error(result)
+        else:
+            log.debug(code, result)
+        
+    def __post_discuss_myDiscuss(self, method):
+        params = dict(uid=self.login_result_data['uid'], to_uid=self.login_result_data['uid'], type=0, limit=20, page=1)
+        
+        code, result = self._post(method=method, token=self.login_result_data['token_info']['token'], params=params)  
+        if code == 200:
+            if result['result'] == 1:
+                log.debug(result['data'])
+            elif result['result'] == 0:
+                log.debug(result['error'])
+            else:
+                log.error(result)
+        else:
+            log.debug(code, result)
+            

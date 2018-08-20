@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+encoding//src/TaskQueue.py=utf-8
+encoding//src/asyncio_demo.py=utf-8
+encoding//src/asyncore_demo.py=utf-8
+encoding//src/asyncoro_demo.py=utf-8
+encoding//src/demo.py=utf-8
+encoding//src/flask_demo.py=utf-8
+encoding//src/memcached_demo.py=utf-8
+encoding//src/mysql_demo.py=utf-8
+encoding//src/py.py=utf-8
+encoding//src/pycos_demo.py=utf-8
+encoding//src/redis_demo.py=utf-8
+encoding//src/socketserver_demo.py=utf-8

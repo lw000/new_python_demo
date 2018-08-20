@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+'''
+Created on 2018年05月31日
+
+@author: Administrator
+'''
+
+import api_login
+from api_base import BaseApi
+
+class DiscussApi(BaseApi):
+    def __init__(self, debug = 0):
+        super(DiscussApi, self).__init__(debug=debug)
+                
+    def start(self):
+        self.__post_discuss_getTags(method='/discuss/getTags')
+        self.__post_discuss_list(method='/discuss/list')
+        self.__post_discuss_detail(method='/discuss/detail')
+        self.__post_discuss_myDiscuss(method='/discuss/myDiscuss')
+                
+    def stop(self):
+        pass
+     
+    def __post_discuss_getTags(self, method):
+        params = {'uid':api_login.login_result_data['uid']}
+        code, result = self._post(method=method, usetoken=True, params=params)  
+        if code == 1:
+            print(result)
+        else:
+            print('[%d %s]' % (code, result))
+    
+    def __post_discuss_list(self, method):
+        params = dict(uid=api_login.login_result_data['uid'], type=0, area_code=0, v_id=0, page=1, limit=20, first_id=0, last_id=0)
+        code, result = self._post(method=method, usetoken=True, params=params)
+        
+        if code == 1:
+            print(result)
+        else:
+            print('[%d %s]' % (code, result))
+                            
+    def __post_discuss_detail(self, method):
+        params = dict(uid=api_login.login_result_data['uid'], discuss_id=48585)
+        
+        code, result = self._post(method=method, usetoken=True, params=params)  
+        if code == 1:
+            print(result)
+        else:
+            print('[%d %s]' % (code, result))
+        
+    def __post_discuss_myDiscuss(self, method):
+        params = dict(uid=api_login.login_result_data['uid'], to_uid=api_login.login_result_data['uid'], type=0, limit=20, page=1)
+        
+        code, result = self._post(method=method, usetoken=True, params=params)  
+        if code == 1:
+            print(result)
+        else:
+            print('[%d %s]' % (code, result))
+            
+            
+if __name__ == '__main__': 
+    from api_login import LoginApi
+    loginer = LoginApi(debug=0)
+    loginer.account = '13632767233'
+    loginer.pwd = 'lwstar23133'
+    if loginer.login():
+        tester = DiscussApi()
+        tester.start()
+        tester.stop() 

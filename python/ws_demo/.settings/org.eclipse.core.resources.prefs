@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+encoding//src/client.py=UTF-8
+encoding//src/common/MemcacheHelper.py=utf-8
+encoding//src/main.py=UTF-8
+encoding//src/web_main_handler.py=UTF-8
+encoding//src/ws_chat_handler.py=UTF-8
